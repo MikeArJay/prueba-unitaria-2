@@ -1,70 +1,163 @@
-# Getting Started with Create React App
+# lanza pruebas para este componente
+```javaScript
+import React from 'react';
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+import Form from "react-bootstrap/Form";
 
-## Available Scripts
+import Button from "react-bootstrap/Button";
 
-In the project directory, you can run:
 
-### `npm start`
+class EmailForm extends React.Component{
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+  constructor(props) {
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+    super(props);
 
-### `npm test`
+    this.state = {email: '', enabled: false, welcomeMsg: ''}
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  }
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+  componentDidMount(){
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    this.fetchUsers()
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  }
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+  changeEmail(e) {
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    const email = e.target.value ;
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+    this.setState({email: email});
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+  }
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  changeUserName(e) {
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+    const username = e.target.value ;
 
-### Code Splitting
+    this.setState({username: username});
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+  }
 
-### Analyzing the Bundle Size
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+  async registerUser(){
 
-### Making a Progressive Web App
+    //  let response = await addUser(this.state.username,this.state.email)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+      console.log(response)
 
-### Advanced Configuration
+      if (response.error)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+        this.setState({welcomeMsg:response.error})
 
-### Deployment
+      else if (response.name===this.state.username)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+        this.setState({welcomeMsg:"Welcome to ASW"})
 
-### `npm run build` fails to minify
+      else
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+        this.setState({welcomeMsg:"Unexpected error, maybe the restapi is still sleeping..."})
+
+      //Refresh the users
+
+      this.fetchUsers()
+
+  }
+
+
+  async fetchUsers(){
+
+    try{
+
+      let users = {username:'Irene', email: 'irene@mail.com'}
+
+      this.props.refreshUsers(users)
+
+    }
+
+    catch(error)
+
+    {
+
+      console.log("Error fetching user list from restapi. Is it on?")
+
+    }
+
+  }
+
+
+  async handleSubmit(e) {
+
+    e.preventDefault()
+
+    //Add the user to the database
+
+    if (this.state.username && this.state.email){
+
+      this.registerUser()
+
+    }
+
+    else
+
+        this.setState({welcomeMsg:'ERROR: You must fill both fields!'})
+
+  }
+
+
+  render(){
+
+    return(
+
+          <Form name="register" onSubmit={this.handleSubmit.bind(this)}>
+
+            <Form.Group>
+
+              <Form.Label>Email address</Form.Label>
+
+              <Form.Control name="email" type="email" placeholder="Enter email" onChange={this.changeEmail.bind(this)} value={this.state.email}/>
+
+              <Form.Text className="text-muted">
+
+                Careful! Your email will be public!
+
+              </Form.Text>
+
+            </Form.Group>
+
+        
+
+            <Form.Group>
+
+              <Form.Label>Name</Form.Label>
+
+              <Form.Control name="username" type="string" placeholder="Name" onChange={this.changeUserName.bind(this)} value={this.state.username} />
+
+            </Form.Group>
+
+            <Button variant="primary" type="submit">
+
+              Submit
+
+            </Button>
+
+            <div>
+
+              <span hidden={this.state.welcomeMsg===''}>{this.state.welcomeMsg}</span>
+
+            </div>
+
+          </Form>
+
+    )
+
+  }
+
+}
+
+
+export default EmailForm
+```
